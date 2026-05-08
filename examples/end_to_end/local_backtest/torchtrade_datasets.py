@@ -335,9 +335,17 @@ def command_smoke_load(args: argparse.Namespace) -> None:
             results.append(smoke_load_dataset(dataset.dataset_id, args.max_rows))
         except Exception as exc:  # noqa: BLE001 - CLI should report all dataset failures, not stop at the first.
             results.append({"dataset_id": dataset.dataset_id, "error": str(exc)})
-    print(json.dumps(results, indent=2, sort_keys=True))
+
+    payload = json.dumps(results, indent=2, sort_keys=True) + "\n"
+    if args.output:
+        args.output.parent.mkdir(parents=True, exist_ok=True)
+        args.output.write_text(payload, encoding="utf-8")
+        print(f"wrote smoke-load results for {len(results)} datasets -> {args.output}")
+    else:
+        print(payload, end="")
+
     failed = [result for result in results if "error" in result]
-    if failed:
+    if failed and not args.allow_fail:
         raise SystemExit(1)
 
 
@@ -355,6 +363,8 @@ def build_parser() -> argparse.ArgumentParser:
     smoke = subparsers.add_parser("smoke-load", help="Load a small slice from Hugging Face for each dataset.")
     smoke.add_argument("--max-rows", type=int, default=16, help="Rows to request from each dataset.")
     smoke.add_argument("--limit", type=int, default=0, help="Optional limit for quick local checks; 0 means all 19.")
+    smoke.add_argument("--output", type=Path, help="Optional JSON output path for smoke-load results.")
+    smoke.add_argument("--allow-fail", action="store_true", help="Write/report failures but exit successfully.")
     smoke.set_defaults(func=command_smoke_load)
 
     return parser

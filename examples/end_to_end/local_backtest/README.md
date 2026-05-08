@@ -113,6 +113,33 @@ For publishable experiments, record the Hugging Face dataset ids, revisions,
 local cache paths, checksums, and any filtering/resampling code in the experiment
 manifest.
 
+## Visualize local results
+
+After running the benchmark and optional dataset smoke test, generate SVG review
+figures without installing plotting dependencies:
+
+```bash
+python examples/end_to_end/local_backtest/run.py run-all \
+  --output-dir outputs/local_backtest
+
+python examples/end_to_end/local_backtest/visualize.py benchmark \
+  --report outputs/local_backtest/benchmark_report.json \
+  --output outputs/local_backtest/benchmark_summary.svg
+
+python examples/end_to_end/local_backtest/torchtrade_datasets.py smoke-load \
+  --max-rows 32 \
+  --output outputs/local_backtest/dataset_smoke.json \
+  --allow-fail
+
+python examples/end_to_end/local_backtest/visualize.py datasets \
+  --smoke-results outputs/local_backtest/dataset_smoke.json \
+  --output outputs/local_backtest/dataset_smoke.svg
+```
+
+`benchmark_summary.svg` compares strategy and baseline returns plus walk-forward
+fold returns. `dataset_smoke.svg` shows which of the 19 Hugging Face datasets
+loaded successfully in the current environment.
+
 ## What this adds for a publication workflow
 
 This example now includes several elements reviewers expect in empirical trading
