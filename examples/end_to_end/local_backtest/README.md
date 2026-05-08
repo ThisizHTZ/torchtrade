@@ -75,44 +75,43 @@ python examples/end_to_end/local_backtest/run.py run-all \
   --folds 4
 ```
 
-## Use a real public dataset
+## Use the 19 free Torch-Trade datasets
 
 The default `run-all` command uses synthetic data so CI and onboarding never
-depend on network access. For repository-level research, you should switch to a
-real, versioned dataset as soon as possible. Two practical starting points are:
-
-1. **TorchTrade datasets on Hugging Face**: the Torch-Trade organization hosts
-   ready-to-use crypto OHLCV and feature datasets. Install the optional
-   `datasets` dependency already listed in `pyproject.toml`, then load a dataset
-   such as `Torch-Trade/btcusdt_perp_1m_05_2021_to_02_2026` with
-   `datasets.load_dataset(...)`.
-2. **Binance public data archive**: Binance publishes public monthly and daily
-   kline ZIP files at `data.binance.vision` with no API key. Use the included
-   dependency-free downloader to convert monthly klines into this example's
-   canonical CSV schema:
+depend on network access. For repository-level research, use the 19 free
+Torch-Trade datasets hosted on Hugging Face instead of ad hoc exchange downloads.
+The catalog is kept in `torchtrade_datasets.py` so every dataset can be validated
+without network access, and optionally smoke-loaded when the `datasets` package
+and network access are available.
 
 ```bash
-python examples/end_to_end/local_backtest/download_binance.py \
-  --symbol BTCUSDT \
-  --interval 1m \
-  --start-month 2024-01 \
-  --end-month 2024-03 \
-  --output data/btcusdt_1m_2024_q1.csv
+# Validate all 19 catalog entries locally, no network required.
+python examples/end_to_end/local_backtest/torchtrade_datasets.py validate-catalog
 
-python examples/end_to_end/local_backtest/run.py train \
-  --data-path data/btcusdt_1m_2024_q1.csv \
-  --policy-path outputs/local_backtest/policy.json
+# Export an experiment manifest for your paper/reproduction bundle.
+python examples/end_to_end/local_backtest/torchtrade_datasets.py catalog \
+  --output outputs/local_backtest/torchtrade_free_datasets.csv
 
-python examples/end_to_end/local_backtest/run.py evaluate \
-  --data-path data/btcusdt_1m_2024_q1.csv \
-  --policy-path outputs/local_backtest/policy.json \
-  --evaluation-path outputs/local_backtest/evaluation.json
+# Optional: actually load a small slice from every Hugging Face dataset.
+python examples/end_to_end/local_backtest/torchtrade_datasets.py smoke-load \
+  --max-rows 32
 ```
 
-The downloader writes columns `timestamp,open,high,low,close,volume`, which are
-accepted by the local benchmark commands. For publishable experiments, keep the
-raw downloaded ZIP files or record their checksum files alongside the converted
-CSV so reviewers can audit provenance.
+The 19-dataset catalog covers spot OHLCV, perpetual OHLCV, perpetual basis,
+funding rates, market metrics, and book-ticker features:
+
+| Group | Datasets |
+|---|---:|
+| Spot 1m OHLCV | 8 |
+| Perpetual 1m OHLCV | 3 |
+| Perpetual basis 1m | 3 |
+| Perpetual funding 8h | 3 |
+| BTC perpetual metrics 5m | 1 |
+| BTC book-ticker features 1m | 1 |
+
+For publishable experiments, record the Hugging Face dataset ids, revisions,
+local cache paths, checksums, and any filtering/resampling code in the experiment
+manifest.
 
 ## What this adds for a publication workflow
 

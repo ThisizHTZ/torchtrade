@@ -74,8 +74,8 @@ python examples/end_to_end/local_backtest/run.py run-all
 This generates synthetic OHLCV data, trains a moving-average crossover policy,
 evaluates it on a holdout split, compares cash and buy-and-hold baselines, runs
 walk-forward validation, and writes artifacts to `outputs/local_backtest/`.
-The example also includes a dependency-free Binance public-data downloader when
-you want to replace synthetic data with real OHLCV candles. See
+The example also includes a 19-dataset Torch-Trade/Hugging Face catalog and
+validation tool when you want to replace synthetic data with real free datasets. See
 [`examples/end_to_end/local_backtest/README.md`](examples/end_to_end/local_backtest/README.md)
 for the task-by-task workflow and publication-readiness checklist.
 
