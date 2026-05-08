@@ -61,6 +61,24 @@ TorchTrade provides modular environments for both live trading with major exchan
 
 ## Quick Start
 
+### Local End-to-End Smoke Test
+
+If you want code that runs immediately from a local checkout without exchange
+credentials, internet access, or optional ML dependencies, start with the
+dependency-free local backtest project:
+
+```bash
+python examples/end_to_end/local_backtest/run.py run-all
+```
+
+This generates synthetic OHLCV data, trains a moving-average crossover policy,
+evaluates it on a holdout split, compares cash and buy-and-hold baselines, runs
+walk-forward validation, and writes artifacts to `outputs/local_backtest/`.
+The example also includes a dependency-free Binance public-data downloader when
+you want to replace synthetic data with real OHLCV candles. See
+[`examples/end_to_end/local_backtest/README.md`](examples/end_to_end/local_backtest/README.md)
+for the task-by-task workflow and publication-readiness checklist.
+
 ### 1. Installation
 
 ```bash
